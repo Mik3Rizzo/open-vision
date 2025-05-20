@@ -1,0 +1,16 @@
+screen_diagonal_inch: 27
+
+interpupillary_distance_mm: 65
+z_screen_mm: 400
+z_object_mm: 390
+
+layer_width: 600
+layer_height: 450
+
+noise_intensity: 180
+square_size: 80
+
+min_offset: 0
+max_offset: 800
+initial_offset: 0
+step: 5
