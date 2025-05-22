@@ -1,6 +1,6 @@
 import pygame
 from fusional_vergence_game import FusionalVergenceGame
-from src.game_type import GameType
+from game_type import GameType
 
 
 BACKGROUND_COLOR = (0, 0, 0)  # black
