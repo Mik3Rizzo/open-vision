@@ -1,0 +1,8 @@
+class GameType:
+    BASE_IN = "BASE_IN"
+    BASE_OUT = "BASE_OUT"
+    
+    JUMP_DUCTION = "JUMP_DUCTION"
+    JUMP_DUCTION_RANDOM = "JUMP_DUCTION_RANDOM"
+
+    EXIT = "EXIT"

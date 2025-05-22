@@ -18,15 +18,14 @@ TEXT_WRONG_COLOR = (255, 255, 0)  # yellow
 
 class FusionalVergenceGame:
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, game_type):
         self.cfg = cfg
-
-        pygame.init()
+        self.game_type = game_type
 
         self.font = pygame.font.SysFont(None, 36)
         self.font_small = pygame.font.SysFont(None, 28)
         self.clock = pygame.time.Clock()
-        
+
         self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         self.screen_width, self.screen_height = self.screen.get_size()
         self.disparity = calc_disparity(self.cfg, self.screen_width, self.screen_height)
@@ -173,5 +172,3 @@ class FusionalVergenceGame:
             if running:
                 self._draw_scene()
                 self.clock.tick(60)
-
-        pygame.quit()
