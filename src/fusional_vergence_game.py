@@ -59,27 +59,37 @@ class FusionalVergenceGame:
             for x in range(self.cfg.layer_width):
                 val = self.noise_matrix[y][x]
 
-                if color == RED_LAYER_COLOR:
-                    xy_is_inside_square = (
-                        self.square_rel_x <= x < self.square_rel_x + self.cfg.square_size and
-                        self.square_rel_y <= y < self.square_rel_y + self.cfg.square_size
-                    )
-                elif color == BLUE_LAYER_COLOR:
-                    xy_is_inside_square = (
-                        self.square_rel_x + self.disparity <= x < self.square_rel_x + self.cfg.square_size + self.disparity and
-                        self.square_rel_y <= y < self.square_rel_y + self.cfg.square_size
-                    )
+                adjusted_square_rel_x = self.square_rel_x       
+
+                if color == BLUE_LAYER_COLOR:
+                    # The square in the blue layer is shifted by disparity
+                    adjusted_square_rel_x += self.disparity
+
+                xy_is_inside_square = (
+                    adjusted_square_rel_x <= x < adjusted_square_rel_x + self.cfg.square_size and
+                    self.square_rel_y <= y < self.square_rel_y + self.cfg.square_size
+                )
 
                 if xy_is_inside_square and color == BLUE_LAYER_COLOR:
-                    # For blue square, sample noise from the original (non-disparate) position
-                    src_x = x - self.disparity
-                    if 0 <= src_x < self.cfg.layer_width:
-                        val = self.noise_matrix[y][src_x]
+                    # Note:
+                    # - the square is just a portion of the noise matrix
+                    # - in the red layer, the square starts from square_rel_x
+                    # - in the blue layer, the square is translated to square_rel_x + disparity, to recreate 3D effect
+                    # - in the blue layer, the pixels between square_rel_x and square_rel_x + disparity are copied from 
+                    #   the red layer, so they are equal to the first disparity pixels of the square itself
+                    # - the pixels between square_rel_x + square_size and square_rel_x + square_size + disparity of the 
+                    #   red layer are overridden by the square in the blue layer
+
+                    # Shift the square to the right by the disparity
+                    original_x = x - self.disparity
+                    if 0 <= original_x < self.cfg.layer_width:
+                        val = self.noise_matrix[y][original_x]
                 
                 if color == RED_LAYER_COLOR:
                     layer_surface.set_at((x, y), (val, 0, 0))
                 elif color == BLUE_LAYER_COLOR:
                     layer_surface.set_at((x, y), (0, 0, val))
+                    
         return layer_surface
 
     def _handle_input(self):
@@ -125,7 +135,6 @@ class FusionalVergenceGame:
     def _draw_scene(self):
         self.screen.fill(BACKGROUND_COLOR)
 
-        # Draw red and blue layers
         self.screen.blit(self.red_layer_surface, (self.layer_x - self.offset, self.layer_y), special_flags=pygame.BLEND_ADD)
         self.screen.blit(self.blue_layer_surface, (self.layer_x + self.offset, self.layer_y), special_flags=pygame.BLEND_ADD)
 
