@@ -13,7 +13,7 @@ The exercises incude:
 
 - Base-in and base-out vergence
 - TODO Base-up and base-down vergence
-- TODO Jump ductions
+- Jump ductions
 - TODO jump ductions random
 
 ## Requirements

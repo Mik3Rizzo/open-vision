@@ -6,8 +6,9 @@ from game_type import GameType
 BACKGROUND_COLOR = (0, 0, 0)  # black
 
 MENU_ITEMS_DICT = {
-    GameType.BASE_IN: "Base-IN",
-    GameType.BASE_OUT: "Base-OUT",
+    GameType.BASE_IN: "Base IN",
+    GameType.BASE_OUT: "Base OUT",
+    GameType.JUMP_DUCTION: "Jump Duction",
     GameType.EXIT: "Exit"
 }
 
@@ -33,15 +34,7 @@ class Menu:
         keys = list(MENU_ITEMS_DICT.keys())
         selected_game = keys[0]
         while True:
-            self.screen.fill(BACKGROUND_COLOR)
-            for index, (game_type, option) in enumerate(MENU_ITEMS_DICT.items()):
-                color = MENU_ITEM_SELECTED_COLOR if game_type == selected_game else MENU_ITEM_UNSELECTED_COLOR
-                text = self.font.render(option, True, color)
-                rect = text.get_rect(center=(self.screen.get_width() // 2, MENU_Y + index * MENU_ITEMS_SPACING))
-                self.screen.blit(text, rect)
-
-            pygame.display.flip()
-
+            # Handle events first
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return GameType.EXIT
@@ -53,4 +46,14 @@ class Menu:
                         selected_game = keys[(index + 1) % len(keys)]
                     elif event.key == pygame.K_RETURN:
                         return selected_game
+
+            # Only draw if the window is still open
+            self.screen.fill(BACKGROUND_COLOR)
+            for index, (game_type, option) in enumerate(MENU_ITEMS_DICT.items()):
+                color = MENU_ITEM_SELECTED_COLOR if game_type == selected_game else MENU_ITEM_UNSELECTED_COLOR
+                text = self.font.render(option, True, color)
+                rect = text.get_rect(center=(self.screen.get_width() // 2, MENU_Y + index * MENU_ITEMS_SPACING))
+                self.screen.blit(text, rect)
+
+            pygame.display.flip()
             self.clock.tick(MENU_FPS)
