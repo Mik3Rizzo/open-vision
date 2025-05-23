@@ -21,9 +21,11 @@ class GameManager:
         self.game.run()
 
     def run(self):
-        while True:
+        running = True
+        while running:
             game_type = self.menu.show()
             if game_type == GameType.EXIT:
+                running = False
                 pygame.quit()
             else:
                 self.start_game(game_type)
