@@ -3,7 +3,7 @@ import pygame
 from game_type import GameType
 
 
-BACKGROUND_COLOR = (0, 0, 0)  # black
+BACKGROUND_COLOR = (15, 26, 33)
 
 MENU_ITEMS_DICT = {
     GameType.BASE_IN: "Base IN",
