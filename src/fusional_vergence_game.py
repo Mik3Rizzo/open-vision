@@ -4,10 +4,9 @@ from utils import calc_disparity
 from strings import Strings
 from game_type import GameType
 from prism import Prism
+from layer import Layer, LayerType
 
 BACKGROUND_COLOR = (0, 0, 0)  # black
-RED_LAYER_COLOR = (255, 0, 0)
-BLUE_LAYER_COLOR = (0, 0, 255)
 
 CURSOR_RADIUS = 8
 CURSOR_RED_COLOR = (255, 0, 0, 128)
@@ -41,12 +40,12 @@ class FusionalVergenceGame:
 
         # Square position
         self.square_rel_x = random.randint(0, self.cfg.layer_width - self.cfg.square_size)
-        self.square_rel_y = random.randint(0, self.cfg.layer_height - self.cfg.square_size)
-
-        # Noise matrix, red/blue layers and cursor
+        self.square_rel_y = random.randint(0, self.cfg.layer_height - self.cfg.square_size)        # Noise matrix, red/blue layers and cursor
         self.noise_matrix = self._create_noise_matrix()
-        self.red_layer_surface = self._create_layer_surface(RED_LAYER_COLOR)
-        self.blue_layer_surface = self._create_layer_surface(BLUE_LAYER_COLOR)
+        self.red_layer = Layer(self.cfg, LayerType.RED, self.cfg.layer_width, self.cfg.layer_height, self.cfg.square_size, self.disparity)
+        self.blue_layer = Layer(self.cfg, LayerType.BLUE, self.cfg.layer_width, self.cfg.layer_height, self.cfg.square_size, self.disparity)
+        self.red_layer_surface = self.red_layer.create_surface(self.noise_matrix, self.square_rel_x, self.square_rel_y)
+        self.blue_layer_surface = self.blue_layer.create_surface(self.noise_matrix, self.square_rel_x, self.square_rel_y)
         self.cursor_surface = pygame.Surface((CURSOR_RADIUS * 2, CURSOR_RADIUS * 2), pygame.SRCALPHA)
 
         # Offsets and scores separated for BASE_IN and BASE_OUT
@@ -76,8 +75,7 @@ class FusionalVergenceGame:
         else:
             self.offset_out = value
 
-    def _increment_score(self):
-        # Increments the score for the current prism type
+    def _increment_score(self):        # Increments the score for the current prism type
         if self.current_prism == Prism.BASE_IN:
             self.score_in += 1
         else:
@@ -85,39 +83,6 @@ class FusionalVergenceGame:
 
     def _create_noise_matrix(self):
         return [[random.randint(0, self.cfg.noise_intensity) for _ in range(self.cfg.layer_width)] for _ in range(self.cfg.layer_height)]
-
-    def _create_layer_surface(self, color):
-        layer_surface = pygame.Surface((self.cfg.layer_width, self.cfg.layer_height))
-        for y in range(self.cfg.layer_height):
-            for x in range(self.cfg.layer_width):
-                val = self.noise_matrix[y][x]
-                adjusted_square_rel_x = self.square_rel_x
-                if color == BLUE_LAYER_COLOR:
-                    # The square in the blue layer is shifted by disparity
-                    adjusted_square_rel_x += self.disparity
-                xy_is_inside_square = (
-                    adjusted_square_rel_x <= x < adjusted_square_rel_x + self.cfg.square_size and
-                    self.square_rel_y <= y < self.square_rel_y + self.cfg.square_size
-                )
-                if xy_is_inside_square and color == BLUE_LAYER_COLOR:
-                    # Note:
-                    # - the square is just a portion of the noise matrix
-                    # - in the red layer, the square starts from square_rel_x
-                    # - in the blue layer, the square is translated to square_rel_x + disparity, to recreate 3D effect
-                    # - in the blue layer, the pixels between square_rel_x and square_rel_x + disparity are copied from 
-                    #   the red layer, so they are equal to the first disparity pixels of the square itself
-                    # - the pixels between square_rel_x + square_size and square_rel_x + square_size + disparity of the 
-                    #   red layer are overridden by the square in the blue layer
-
-                    # Shift the square to the right by the disparity
-                    original_x = x - self.disparity
-                    if 0 <= original_x < self.cfg.layer_width:
-                        val = self.noise_matrix[y][original_x]
-                if color == RED_LAYER_COLOR:
-                    layer_surface.set_at((x, y), (val, 0, 0))
-                elif color == BLUE_LAYER_COLOR:
-                    layer_surface.set_at((x, y), (0, 0, val))
-        return layer_surface
 
     def _handle_input(self):
         for event in pygame.event.get():
@@ -154,9 +119,7 @@ class FusionalVergenceGame:
                 current_offset -= self.cfg.step
             self.last_result = False
 
-        self._set_current_offset(current_offset)
-
-        # Alternate current_prism for JUMP_DUCTION
+        self._set_current_offset(current_offset)        # Alternate current_prism for JUMP_DUCTION
         if self.game_type == GameType.JUMP_DUCTION:
             self.current_prism = (
                 Prism.BASE_IN if self.current_prism == Prism.BASE_OUT else Prism.BASE_OUT
@@ -165,8 +128,8 @@ class FusionalVergenceGame:
         self.square_rel_x = random.randint(0, self.cfg.layer_width - self.cfg.square_size)
         self.square_rel_y = random.randint(0, self.cfg.layer_height - self.cfg.square_size)
 
-        self.red_layer_surface = self._create_layer_surface(RED_LAYER_COLOR)
-        self.blue_layer_surface = self._create_layer_surface(BLUE_LAYER_COLOR)
+        self.red_layer_surface = self.red_layer.create_surface(self.noise_matrix, self.square_rel_x, self.square_rel_y)
+        self.blue_layer_surface = self.blue_layer.create_surface(self.noise_matrix, self.square_rel_x, self.square_rel_y)
 
     def _draw_scene(self):
         self.screen.fill(BACKGROUND_COLOR)
@@ -191,9 +154,9 @@ class FusionalVergenceGame:
 
         # Draw the score(s)
         score_text = ""
-        if self.game_type == GameType.BASE_IN:
+        if self.game_type == GameType.BASE_OUT:
             score_text = Strings.MSG_BASE_OUT_SCORE.format(self.offset_in)
-        elif self.game_type == GameType.BASE_OUT:
+        elif self.game_type == GameType.BASE_IN:
             score_text = Strings.MSG_BASE_IN_SCORE.format(self.offset_out)
         elif self.game_type == GameType.JUMP_DUCTION:
             score_text = Strings.MSG_BASE_IN_SCORE.format(self.offset_in) + " / " + Strings.MSG_BASE_OUT_SCORE.format(self.offset_out)
