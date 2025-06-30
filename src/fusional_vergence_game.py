@@ -75,11 +75,11 @@ class FusionalVergenceGame:
         else:
             self.offset_out = value
 
-    def _increment_score(self):        # Increments the score for the current prism type
+    def _increment_score(self):
         if self.current_prism == Prism.BASE_IN:
-            self.score_in += 1
+            self.score_in = self.offset_in
         else:
-            self.score_out += 1
+            self.score_out = self.offset_out
 
     def _create_noise_matrix(self):
         return [[random.randint(0, self.cfg.noise_intensity) for _ in range(self.cfg.layer_width)] for _ in range(self.cfg.layer_height)]
@@ -119,7 +119,8 @@ class FusionalVergenceGame:
                 current_offset -= self.cfg.step
             self.last_result = False
 
-        self._set_current_offset(current_offset)        # Alternate current_prism for JUMP_DUCTION
+        self._set_current_offset(current_offset)        
+        # Alternate current_prism for JUMP_DUCTION
         if self.game_type == GameType.JUMP_DUCTION:
             self.current_prism = (
                 Prism.BASE_IN if self.current_prism == Prism.BASE_OUT else Prism.BASE_OUT
@@ -155,9 +156,9 @@ class FusionalVergenceGame:
         # Draw the score(s)
         score_text = ""
         if self.game_type == GameType.BASE_OUT:
-            score_text = Strings.MSG_BASE_OUT_SCORE.format(self.offset_in)
+            score_text = Strings.MSG_BASE_OUT_SCORE.format(self.offset_out)
         elif self.game_type == GameType.BASE_IN:
-            score_text = Strings.MSG_BASE_IN_SCORE.format(self.offset_out)
+            score_text = Strings.MSG_BASE_IN_SCORE.format(self.offset_in)
         elif self.game_type == GameType.JUMP_DUCTION:
             score_text = Strings.MSG_BASE_IN_SCORE.format(self.offset_in) + " / " + Strings.MSG_BASE_OUT_SCORE.format(self.offset_out)
         score_text_surface = self.font.render(score_text, True, TEXT_COLOR)
