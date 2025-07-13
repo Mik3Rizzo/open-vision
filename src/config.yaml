@@ -14,3 +14,5 @@ min_offset: 0
 max_offset: 800
 initial_offset: 0
 step: 5
+
+game_duration_sec: 180

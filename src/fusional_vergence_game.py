@@ -64,6 +64,10 @@ class FusionalVergenceGame:
 
         self.last_result = None
 
+        # Timer
+        self.start_ticks = None
+        self.time_left = self.cfg.game_duration_sec
+
     def _get_current_offset(self):
         # Returns the offset for the current prism type
         return self.offset_in if self.current_prism == Prism.BASE_IN else self.offset_out
@@ -164,6 +168,12 @@ class FusionalVergenceGame:
         score_text_surface = self.font.render(score_text, True, TEXT_COLOR)
         self.screen.blit(score_text_surface, (20, 20))
 
+        # Draw the timer
+        timer_text = Strings.MSG_TIME_LEFT.format(max(0, int(self.time_left)))
+        timer_surface = self.font.render(timer_text, True, TEXT_COLOR)
+        self.screen.blit(timer_surface, (self.screen_width - 190, 20))
+
+        # Draw the last result message
         if self.last_result is not None:
             result_color = TEXT_CORRECT_COLOR if self.last_result else TEXT_WRONG_COLOR
             result_msg = Strings.MSG_CORRECT if self.last_result else Strings.MSG_WRONG
@@ -182,7 +192,15 @@ class FusionalVergenceGame:
         pygame.mouse.set_visible(False)  # Hide the mouse cursor
 
         running = True
+        self.start_ticks = pygame.time.get_ticks()
         while running:
+            # Timer logic
+            elapsed = (pygame.time.get_ticks() - self.start_ticks) / 1000
+            self.time_left = self.cfg.game_duration_sec - elapsed
+            if self.time_left <= 0:
+                running = False
+                continue
+
             running = self._handle_input()
             if running:
                 self._draw_scene()

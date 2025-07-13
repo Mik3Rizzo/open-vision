@@ -20,6 +20,8 @@ DEFAULT_MAX_OFFSET = 800
 DEFAULT_INITIAL_OFFSET = 0
 DEFAULT_STEP = 5
 
+DEFAULT_GAME_DURATION_SEC = 180
+
 class Config:
     def __init__(self, config_file=DEFAULT_CONFIG_FILE):
         # Load the configuration from a YAML file
@@ -49,3 +51,6 @@ class Config:
         self.max_offset = config_data.get("max_offset", DEFAULT_MAX_OFFSET)
         self.initial_offset = config_data.get("initial_offset", DEFAULT_INITIAL_OFFSET)
         self.step = config_data.get("step", DEFAULT_STEP)
+
+        # Game duration
+        self.game_duration_sec = config_data.get("game_duration_sec", DEFAULT_GAME_DURATION_SEC)
