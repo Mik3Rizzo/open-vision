@@ -1,5 +1,5 @@
 import pygame
-from layer_type import LayerType
+from enums.layer_type import LayerType
 
 # TODO separate enum
 # TODO extract from config width and similar parameters

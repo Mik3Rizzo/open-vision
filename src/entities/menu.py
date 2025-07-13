@@ -1,6 +1,6 @@
 import pygame
 
-from game_type import GameType
+from enums.game_type import GameType
 
 
 BACKGROUND_COLOR = (15, 26, 33)

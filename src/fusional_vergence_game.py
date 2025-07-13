@@ -2,9 +2,10 @@ import pygame
 import random
 from utils import calc_disparity
 from strings import Strings
-from game_type import GameType
-from prism import Prism
-from layer import Layer, LayerType
+from entities.prism import Prism
+from entities.layer import Layer
+from enums.game_type import GameType
+from enums.layer_type import LayerType
 
 BACKGROUND_COLOR = (0, 0, 0)  # black
 

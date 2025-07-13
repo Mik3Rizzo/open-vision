@@ -1,7 +1,7 @@
 import yaml
 
 # Default values as constants
-DEFAULT_CONFIG_FILE="config.yaml"
+DEFAULT_CONFIG_FILE_PATH="config/config.yaml"
 
 DEFAULT_SCREEN_DIAGONAL_INCH = 27
 
@@ -23,7 +23,7 @@ DEFAULT_STEP = 5
 DEFAULT_GAME_DURATION_SEC = 180
 
 class Config:
-    def __init__(self, config_file=DEFAULT_CONFIG_FILE):
+    def __init__(self, config_file=DEFAULT_CONFIG_FILE_PATH):
         # Load the configuration from a YAML file
         with open(config_file, "r") as file:
             config_data = yaml.safe_load(file)
