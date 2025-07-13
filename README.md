@@ -14,13 +14,14 @@ The exercises incude:
 - Base-in and base-out vergence
 - TODO Base-up and base-down vergence
 - Jump ductions
-- TODO jump ductions random
+- TODO Base-in and base-out random
+- TODO Jump ductions random
 
 ## Requirements
 
 - Python 3.12+
 
-## Usage
+## Setup and run
 
 1. Clone the repository
 ```bash
@@ -36,12 +37,16 @@ pip install -r requirements.txt
 3. Run
 ```bash
 cd src
-python -m open_vision
+python -m main
 ```
 
 ## Configuration
 
-Modify the `src/config.yaml` file to adjust some settings such as screen size, noise intensity, and object distances.
+Modify the `src/config/config.yaml` file to adjust some settings such as screen size, noise intensity, and object distances.
+
+## Usage
+
+TODO
 
 ## About
 
