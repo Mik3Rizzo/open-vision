@@ -1,5 +1,5 @@
 import pygame
-from fusional_vergence_game import FusionalVergenceGame
+from src.games.fusional_vergence_game import FusionalVergenceGame
 from entities.menu import Menu
 from enums.game_type import GameType
 
