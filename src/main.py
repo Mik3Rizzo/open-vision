@@ -1,4 +1,4 @@
-from src.entities.open_vision import OpenVision
+from entities.open_vision import OpenVision
 from config.config import Config
 
 def main():
