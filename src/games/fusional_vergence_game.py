@@ -39,6 +39,15 @@ class FusionalVergenceGame(BaseGame):
         else:
             self.current_prism = Prism.BASE_IN
 
+    def _get_score_msg(self):
+        if self.game_type == GameType.BASE_IN:
+            return Strings.MSG_BASE_IN_SCORE.format(self.score_in)
+        elif self.game_type == GameType.BASE_OUT:
+            return Strings.MSG_BASE_OUT_SCORE.format(self.score_out)
+        elif self.game_type == GameType.JUMP_DUCTION:
+            return f"{Strings.MSG_BASE_IN_SCORE.format(self.score_in)} / {Strings.MSG_BASE_OUT_SCORE.format(self.score_out)}"
+        return ""
+    
     def _get_current_offset(self):
         """
         Get the offset for the current prism type.
