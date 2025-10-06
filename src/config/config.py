@@ -1,7 +1,8 @@
 import yaml
+import os
 
 # Default values as constants
-DEFAULT_CONFIG_FILE_PATH="config/config.yaml"
+DEFAULT_CONFIG_FILE_PATH = os.path.join(os.path.dirname(__file__), "config.yaml")
 
 DEFAULT_SCREEN_DIAGONAL_INCH = 27
 
