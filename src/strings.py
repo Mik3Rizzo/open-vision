@@ -9,3 +9,5 @@ class Strings:
     MSG_QUIT = "Press ESC to quit"
     
     FUSIONAL_VERGENCE_TITLE = "Fusional Vergence Game"
+    
+    SUMMARY_MENU_TITLE = "Game Summary"

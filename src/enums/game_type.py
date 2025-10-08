@@ -1,8 +1,8 @@
-class GameType:
-    BASE_IN = "BASE_IN"
-    BASE_OUT = "BASE_OUT"
-    
-    JUMP_DUCTION = "JUMP_DUCTION"
-    JUMP_DUCTION_RANDOM = "JUMP_DUCTION_RANDOM"
+from enum import Enum
 
-    EXIT = "EXIT"
+
+class GameType(Enum):
+    BASE_IN = "Base IN"
+    BASE_OUT = "Base OUT"
+    JUMP_DUCTION = "Jump duction"
+    JUMP_DUCTION_RANDOM = "Jump duction random"
