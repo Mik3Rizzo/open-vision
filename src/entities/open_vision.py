@@ -2,7 +2,7 @@ import pygame
 from games.fusional_vergence_game import FusionalVergenceGame
 from entities.menu import Menu
 from enums.game_type import GameType
-from src.enums.summary_menu_item import SummaryMenuItem
+from enums.summary_menu_item import SummaryMenuItem
 from strings import Strings
 
 
