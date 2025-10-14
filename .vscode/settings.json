@@ -1,0 +1,8 @@
+{
+  "VsCodeTaskButtons.tasks": [
+    {
+      "label": "Run",
+      "task": "Run"
+    }
+  ]
+}
