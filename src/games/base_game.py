@@ -36,7 +36,7 @@ class BaseGame(ABC):
         self.offset = 0
 
         self.time_left = self.cfg.game_duration_sec
-        self.last_result = None
+        self.last_correct = None
 
     def _draw_layers(self):
         """
@@ -75,9 +75,9 @@ class BaseGame(ABC):
         """
         Draw the last result message (correct or wrong) below the score.
         """
-        if self.last_result is not None:
-            result_color = self._TEXT_CORRECT_COLOR if self.last_result else self._TEXT_WRONG_COLOR
-            result_msg = Strings.MSG_CORRECT if self.last_result else Strings.MSG_WRONG
+        if self.last_correct is not None:
+            result_color = self._TEXT_CORRECT_COLOR if self.last_correct else self._TEXT_WRONG_COLOR
+            result_msg = Strings.MSG_CORRECT if self.last_correct else Strings.MSG_WRONG
             result_text_surface = self.font.render(result_msg, True, result_color)
             self.screen.blit(result_text_surface, (20, 60))
 
@@ -89,7 +89,14 @@ class BaseGame(ABC):
         quit_rect = quit_text_surface.get_rect(center=(self.screen_width // 2, self.screen_height - 40))
         self.screen.blit(quit_text_surface, quit_rect)
 
-    def _draw_scene(self, score_text):
+    def _draw_additional_info(self, additional_info_text):
+        """
+        Draw an additional game info.
+        """
+        surface = self.font.render(additional_info_text, True, self._TEXT_COLOR)
+        self.screen.blit(surface, (20, 100))
+    
+    def _draw_scene(self, score_text, additional_info_text=""):
         """
         Draw the full game scene.
         """
@@ -100,7 +107,8 @@ class BaseGame(ABC):
         self._draw_timer()
         self._draw_last_result()
         self._draw_quit_message()
-        pygame.display.flip()
+        self._draw_additional_info(additional_info_text)
+        pygame.display.flip()    
 
     @abstractmethod
     def _on_mouse_click(self):

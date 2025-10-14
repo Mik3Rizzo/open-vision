@@ -6,6 +6,7 @@ from entities.prism import Prism
 from entities.layer import Layer
 from enums.game_type import GameType
 from enums.layer_type import LayerType
+from enums.prism_type import PrismType
 from games.base_game import BaseGame
 
 class FusionalVergenceGame(BaseGame):
@@ -26,49 +27,38 @@ class FusionalVergenceGame(BaseGame):
         self.red_layer_surface = self.red_layer.create_surface(self.noise_matrix, self.square_rel_x, self.square_rel_y)
         self.blue_layer_surface = self.blue_layer.create_surface(self.noise_matrix, self.square_rel_x, self.square_rel_y)
         
-        self.offset_in = self.cfg.initial_offset
-        self.offset_out = self.cfg.initial_offset
-
-        self.score_in = 0
-        self.score_out = 0
+        self.prism_dict = {
+            PrismType.BASE_IN: Prism(PrismType.BASE_IN, self.cfg.initial_offset),
+            PrismType.BASE_OUT: Prism(PrismType.BASE_OUT, self.cfg.initial_offset)
+        }
 
         if self.game_type == GameType.BASE_IN:
-            self.current_prism = Prism.BASE_IN
+            self.current_prism_type = PrismType.BASE_IN
         elif self.game_type == GameType.BASE_OUT:
-            self.current_prism = Prism.BASE_OUT
+            self.current_prism_type = PrismType.BASE_OUT
         else:
-            self.current_prism = Prism.BASE_IN
+            self.current_prism_type = PrismType.BASE_IN
 
     def _get_score_msg(self):
-        if self.game_type == GameType.BASE_IN:
-            return Strings.MSG_BASE_IN_SCORE.format(self.score_in)
-        elif self.game_type == GameType.BASE_OUT:
-            return Strings.MSG_BASE_OUT_SCORE.format(self.score_out)
+        if self.game_type == GameType.BASE_OUT:
+            return Strings.MSG_BASE_OUT_SCORE.format(self.prism_dict[PrismType.BASE_OUT].offset)
+        elif self.game_type == GameType.BASE_IN:
+            return Strings.MSG_BASE_IN_SCORE.format(self.prism_dict[PrismType.BASE_IN].offset)
         elif self.game_type == GameType.JUMP_DUCTION:
-            return f"{Strings.MSG_BASE_IN_SCORE.format(self.score_in)} / {Strings.MSG_BASE_OUT_SCORE.format(self.score_out)}"
-        return ""
-    
-    def _get_current_offset(self):
-        """
-        Get the offset for the current prism type.
-        """
-        return self.offset_in if self.current_prism == Prism.BASE_IN else self.offset_out
-
-    def _set_current_offset(self, value):
-        """
-        Set the offset for the current prism type.
-        """
-        if self.current_prism == Prism.BASE_IN:
-            self.offset_in = value
+            return Strings.MSG_BASE_IN_SCORE.format(self.prism_dict[PrismType.BASE_IN].offset) + " / " + Strings.MSG_BASE_OUT_SCORE.format(self.prism_dict[PrismType.BASE_OUT].offset)
         else:
-            self.offset_out = value
+            return ""
 
-    def _increment_score(self):
-        if self.current_prism == Prism.BASE_IN:
-            self.score_in = self.offset_in
-        else:
-            self.score_out = self.offset_out
-
+    def _get_break_recovery_cycles_msg(self):
+        parts = []
+        for _, prism in self.prism_dict.items():
+            if prism.break_recovery_pairs:
+                osc_str = ", ".join(f"{min_val}-{max_val}" for min_val, max_val in prism.break_recovery_pairs)
+                parts.append(f"{prism.prism_type.value.split('_')[1]} {osc_str}")
+        if not parts:
+            return ""
+        return f"B-R cycles: {' | '.join(parts)}"
+        
     def _create_noise_matrix(self):
         return [[random.randint(0, self.cfg.noise_intensity) for _ in range(self.cfg.layer_width)] for _ in range(self.cfg.layer_height)]
 
@@ -85,22 +75,30 @@ class FusionalVergenceGame(BaseGame):
             self.square_rel_y <= mouse_rel_y <= self.square_rel_y + self.cfg.square_size
         )
 
-        current_offset = self._get_current_offset()
+        prism = self.prism_dict[self.current_prism_type]
         if click_is_on_square:
-            if current_offset < self.cfg.max_offset:
-                current_offset += self.cfg.step
-            self.last_result = True
-            self._increment_score()
+            self.last_correct = True
+            if not prism.direction:  # Was decreasing, now increasing: save the break-recovery cycle and reset min/max
+                prism.break_recovery_pairs.append((prism.current_max, prism.current_min))
+                prism.current_min = prism.offset
+                prism.current_max = prism.offset
+            prism.direction = True
+            # Increase offset and update max
+            if prism.offset < self.cfg.max_offset:
+                prism.offset += self.cfg.step
+                prism.current_max = prism.offset
         else:
-            if current_offset > self.cfg.min_offset:
-                current_offset -= self.cfg.step
-            self.last_result = False
+            self.last_correct = False
+            prism.direction = False
+            # Decrease offset and update min
+            if prism.offset > self.cfg.min_offset:
+                prism.offset -= self.cfg.step
+                prism.current_min = prism.offset
 
-        self._set_current_offset(current_offset)        
         # Alternate current_prism for JUMP_DUCTION
         if self.game_type == GameType.JUMP_DUCTION:
-            self.current_prism = (
-                Prism.BASE_IN if self.current_prism == Prism.BASE_OUT else Prism.BASE_OUT
+            self.current_prism_type = (
+                PrismType.BASE_IN if self.current_prism_type == PrismType.BASE_OUT else PrismType.BASE_OUT
             )
 
         self.square_rel_x = random.randint(0, self.cfg.layer_width - self.cfg.square_size)
@@ -110,20 +108,19 @@ class FusionalVergenceGame(BaseGame):
         self.blue_layer_surface = self.blue_layer.create_surface(self.noise_matrix, self.square_rel_x, self.square_rel_y)
 
     def _draw_scene(self):
-        if self.current_prism == Prism.BASE_IN:
-            self.offset = -self.offset_in
+        if self.current_prism_type == PrismType.BASE_IN:
+            self.offset = -self.prism_dict[PrismType.BASE_IN].offset
         else:
-            self.offset = self.offset_out
+            self.offset = self.prism_dict[PrismType.BASE_OUT].offset
 
-        if self.game_type == GameType.BASE_OUT:
-            score_text = Strings.MSG_BASE_OUT_SCORE.format(self.offset_out)
-        elif self.game_type == GameType.BASE_IN:
-            score_text = Strings.MSG_BASE_IN_SCORE.format(self.offset_in)
-        elif self.game_type == GameType.JUMP_DUCTION:
-            score_text = Strings.MSG_BASE_IN_SCORE.format(self.offset_in) + " / " + Strings.MSG_BASE_OUT_SCORE.format(self.offset_out)
-        else:
-            score_text = ""
-        super()._draw_scene(score_text)
+        super()._draw_scene(
+            score_text=self._get_score_msg(),
+            additional_info_text=self._get_break_recovery_cycles_msg()
+        )
 
     def run(self):
         super().run(title=Strings.FUSIONAL_VERGENCE_TITLE)
+        # Close the last break-recovery cycle if needed
+        for prism in self.prism_dict.values():
+            if prism.direction and (not prism.break_recovery_pairs or prism.break_recovery_pairs[-1][0] != prism.offset):
+                prism.break_recovery_pairs.append((prism.offset, prism.current_min))
