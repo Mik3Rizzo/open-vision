@@ -123,4 +123,5 @@ class FusionalVergenceGame(BaseGame):
         # Close the last break-recovery cycle if needed
         for prism in self.prism_dict.values():
             if prism.direction and (not prism.break_recovery_pairs or prism.break_recovery_pairs[-1][0] != prism.offset):
-                prism.break_recovery_pairs.append((prism.offset, prism.current_min))
+                if prism.offset != 0:
+                    prism.break_recovery_pairs.append((prism.offset, prism.current_min))

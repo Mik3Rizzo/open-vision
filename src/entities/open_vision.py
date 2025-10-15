@@ -28,7 +28,7 @@ class OpenVision:
             self.screen, 
             items_enum=SummaryMenuItem, 
             title=Strings.SUMMARY_MENU_TITLE, 
-            subtitle=self.game._get_score_msg()
+            subtitle=f"{self.game._get_score_msg()}\n{self.game._get_break_recovery_cycles_msg()}"
         )
         choice = summary_menu.show()
         if choice == SummaryMenuItem.RESTART:
