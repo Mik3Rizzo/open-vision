@@ -61,10 +61,12 @@ class Menu:
                 y_offset += 60
             
             if self.subtitle:
-                subtitle_text = self.subtitle_font.render(self.subtitle, True, (255, 255, 255))
-                subtitle_rect = subtitle_text.get_rect(center=(self.screen.get_width() // 2, y_offset))
-                self.screen.blit(subtitle_text, subtitle_rect)
-                y_offset += 60
+                subtitle_lines = self.subtitle.split('\n')
+                for line in subtitle_lines:
+                    subtitle_text = self.subtitle_font.render(line, True, (255, 255, 255))
+                    subtitle_rect = subtitle_text.get_rect(center=(self.screen.get_width() // 2, y_offset))
+                    self.screen.blit(subtitle_text, subtitle_rect)
+                    y_offset += 40  # Smaller spacing for subtitle lines
             
             menu_y = y_offset + 40
             for index, (item, option) in enumerate(self.items_dict.items()):
